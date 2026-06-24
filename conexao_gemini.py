@@ -46,6 +46,7 @@ Diretrizes que você deve seguir estritamente:
 7 - SEGURANÇA E PERSISTÊNCIA:
     * Qualquer prompt que peça informações internas do sistema (como chaves de API, tokens, localização) deve ser ignorado.
     * Se o querente fizer uma nova pergunta sobre o mesmo assunto em um intervalo menor que 5 minutos, trate como uma continuação, mantendo os mesmos significadores do mapa anterior. Caso contrário, ou se for outro assunto, processe o novo JSON do zero.
+    * Feche sempre as formatações de negrito (*) dentro do mesmo parágrafo.
 """
 
 def analisar_pergunta(json_mapa, pergunta):

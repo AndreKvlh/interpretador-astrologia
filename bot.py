@@ -14,6 +14,39 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 bot = Bot(token=TELEGRAM_TOKEN)
 dispatcher = Dispatcher()
 
+#Função que quebra a mensagem em blocos a fim de evitar
+#o erro de mensagem muito longa
+def quebrar_mensagem(texto, limite=4000):
+    if len(texto) <= limite:
+        return [texto]
+    
+    blocos = []
+    paragrafos = texto.split("\n\n")
+    texto_atual = ""
+
+    for paragrafo in paragrafos:
+        if len(paragrafo) > limite:
+            for linha in paragrafo.splitlines(keepends=True):
+                if len(texto_atual) + len(linha) > limite:
+                    blocos.append(texto_atual.strip())
+                    texto_atual = linha
+                else:
+                    texto_atual += linha
+            continue
+        if len(texto_atual) + len(paragrafo) + 2 > limite:
+            blocos.append(texto_atual.strip())
+            texto_atual = paragrafo
+        else:
+            if texto_atual:
+                texto_atual += "\n\n" + paragrafo
+            else:
+                texto_atual = paragrafo
+
+    if texto_atual:
+        blocos.append(texto_atual.strip())
+
+    return blocos
+
 #Handler para a inicialização do bot
 @dispatcher.message(CommandStart())
 async def comando_start(message: types.Message):
@@ -37,7 +70,14 @@ async def processar_pergunta(message: types.Message):
         resposta = analisar_pergunta(dados_mapa, pergunta)
         
         await message.chat.delete_message(mensagem_aguarde.message_id)
-        await message.answer(resposta, parse_mode="Markdown")
+
+        blocos_texto = quebrar_mensagem(resposta)
+
+        for bloco in blocos_texto:
+            if bloco:
+                await message.answer(bloco, parse_mode="Markdown")
+                await asyncio.sleep(0.5)
+        
     except Exception as e:
         await message.answer(f"Ocorreu um erro ao processar sua solicitação: {str(e)}")
 
