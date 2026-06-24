@@ -121,9 +121,7 @@ def gerar_mapa():
             "casa": casas_astrologicas[subject.pars_fortunae.house]
         }
     }
-
     return payload
 
-print(gerar_mapa())
 
     
